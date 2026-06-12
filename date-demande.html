@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demande de date pastel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+      --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+      --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+      --radius-sm: 0.5rem; --radius-md: 0.9rem; --radius-lg: 1.25rem;
+      --radius-xl: 1.75rem; --radius-full: 9999px;
+      --color-bg: #fffafb;
+      --color-surface: #fffefe;
+      --color-surface-2: #fff2f7;
+      --color-border: rgba(136, 84, 110, 0.14);
+      --color-divider: rgba(136, 84, 110, 0.1);
+      --color-text: #5c3a4c;
+      --color-text-muted: #8c6a7b;
+      --color-text-faint: #b996a8;
+      --color-primary: #f48fb1;
+      --color-primary-hover: #ec78a0;
+      --color-primary-active: #dd628d;
+      --color-primary-highlight: rgba(244, 143, 177, 0.18);
+      --shadow-sm: 0 10px 30px rgba(227, 168, 190, 0.18);
+      --shadow-md: 0 18px 45px rgba(227, 168, 190, 0.28);
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body: 'Quicksand', Arial, sans-serif;
+      --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--font-body);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,200,220,0.5) 0%, transparent 38%),
+        radial-gradient(circle at 85% 80%, rgba(255,230,240,0.7) 0%, transparent 35%),
+        radial-gradient(circle at 50% 50%, rgba(255,245,250,0.9) 0%, transparent 70%),
+        var(--color-bg);
+      color: var(--color-text);
+      display: grid;
+      place-items: center;
+      padding: var(--space-6);
+    }
+
+    button, input { font: inherit; cursor: pointer; }
+
+    .shell {
+      width: min(100%, 620px);
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--color-divider);
+      background: rgba(255,255,255,0.6);
+    }
+
+    .brand-mark {
+      width: 2.2rem; height: 2.2rem;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, #ffd8e7, #f7a9c4);
+      color: white;
+      font-size: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-name {
+      font-weight: 700;
+      font-size: var(--text-sm);
+    }
+
+    /* ── STAGES ── */
+    .stage { display: none; padding: clamp(var(--space-6), 6vw, var(--space-10)); }
+    .stage.active { display: block; }
+
+    /* Stage 1 — question */
+    .question-heading {
+      font-family: var(--font-display);
+      font-size: clamp(1.7rem, 4vw, 2.8rem);
+      line-height: 1.1;
+      text-align: center;
+      margin-bottom: var(--space-3);
+    }
+
+    .question-sub {
+      text-align: center;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-8);
+      font-size: var(--text-sm);
+    }
+
+    .buttons-zone {
+      position: relative;
+      height: 130px;
+      width: 100%;
+    }
+
+    .choice-btn {
+      position: absolute;
+      min-width: 130px;
+      min-height: 50px;
+      padding: 0.85rem 1.4rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-size: var(--text-sm);
+      border: 1px solid transparent;
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--transition), background var(--transition), box-shadow var(--transition),
+                  left 200ms cubic-bezier(0.16, 1, 0.3, 1), top 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .choice-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .choice-btn:active { transform: translateY(0); }
+
+    #yesBtn {
+      left: 20%; top: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--color-primary);
+      color: white;
+    }
+
+    #noBtn {
+      left: 75%; top: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      color: var(--color-text);
+      border-color: rgba(244, 143, 177, 0.3);
+    }
+
+    /* Stage 2 — date/heure */
+    .stage-title {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      text-align: center;
+      margin-bottom: var(--space-2);
+    }
+
+    .stage-sub {
+      color: var(--color-text-muted);
+      text-align: center;
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-6);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .field { display: grid; gap: var(--space-2); }
+
+    .field label {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-text-muted);
+    }
+
+    .field input {
+      width: 100%;
+      min-height: 50px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      background: white;
+      padding: 0 1rem;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .field input:focus {
+      border-color: rgba(244, 143, 177, 0.45);
+      box-shadow: 0 0 0 4px rgba(244, 143, 177, 0.14);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: var(--space-3);
+    }
+
+    .btn {
+      flex: 1;
+      min-height: 50px;
+      border-radius: var(--radius-full);
+      padding: 0.85rem 1.2rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+      font-size: var(--text-sm);
+      transition: transform var(--transition), background var(--transition), border-color var(--transition);
+    }
+
+    .btn-primary { background: var(--color-primary); color: white; }
+    .btn-primary:hover { background: var(--color-primary-hover); transform: translateY(-1px); }
+    .btn-ghost { background: white; color: var(--color-text); border-color: var(--color-border); }
+    .btn-ghost:hover { border-color: rgba(244,143,177,0.35); }
+
+    /* Stage 3 — activités */
+    .activity-list {
+      display: grid;
+      gap: var(--space-3);
+      margin-top: var(--space-5);
+      margin-bottom: var(--space-5);
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      background: white;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      text-align: left;
+    }
+
+    .activity-item:hover {
+      border-color: rgba(244,143,177,0.45);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .activity-item.selected {
+      border-color: var(--color-primary);
+      background: rgba(244,143,177,0.06);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .activity-emoji {
+      font-size: 1.6rem;
+      min-width: 2.4rem;
+      text-align: center;
+    }
+
+    .activity-info { flex: 1; }
+
+    .activity-info strong {
+      display: block;
+      font-size: var(--text-sm);
+      color: var(--color-primary-active);
+      margin-bottom: 0.2rem;
+    }
+
+    .activity-info span {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+    }
+
+    .check-circle {
+      width: 1.4rem; height: 1.4rem;
+      border-radius: 50%;
+      border: 2px solid var(--color-border);
+      display: grid; place-items: center;
+      font-size: 0.7rem;
+      transition: background var(--transition), border-color var(--transition);
+      flex-shrink: 0;
+    }
+
+    .activity-item.selected .check-circle {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: white;
+    }
+
+    /* Stage 4 — résultat */
+    .result-card {
+      text-align: center;
+      padding: var(--space-8) var(--space-6);
+      display: grid;
+      gap: var(--space-5);
+    }
+
+    .big-emoji { font-size: 3.5rem; }
+
+    .result-label {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      display: block;
+      margin-bottom: var(--space-1);
+    }
+
+    .result-value {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      color: var(--color-text);
+    }
+
+    .result-box {
+      background: rgba(255,255,255,0.72);
+      border: 1px dashed rgba(244,143,177,0.4);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    /* hearts float */
+    .hearts-bg {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .h-float {
+      position: absolute;
+      font-size: 1.1rem;
+      opacity: 0.12;
+      animation: fh 9s ease-in-out infinite;
+    }
+
+    @keyframes fh {
+      0%,100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-18px) scale(1.08); }
+    }
+
+    footer {
+      padding: var(--space-4) var(--space-6);
+      text-align: center;
+      color: var(--color-text-faint);
+      font-size: var(--text-xs);
+      border-top: 1px solid var(--color-divider);
+    }
+
+    @media (max-width: 480px) {
+      body { padding: var(--space-3); }
+      .form-grid { grid-template-columns: 1fr; }
+      .buttons-zone { height: 180px; }
+      #yesBtn { left: 30%; top: 40%; }
+      #noBtn { left: 72%; top: 72%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hearts-bg" aria-hidden="true">
+    <span class="h-float" style="left:8%;top:15%;animation-delay:0s">❤</span>
+    <span class="h-float" style="left:88%;top:10%;animation-delay:1.5s">❤</span>
+    <span class="h-float" style="left:5%;top:70%;animation-delay:3s">❤</span>
+    <span class="h-float" style="left:92%;top:65%;animation-delay:4.5s">❤</span>
+    <span class="h-float" style="left:50%;top:85%;animation-delay:2s">❤</span>
+  </div>
+
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand-mark" aria-hidden="true">❤</div>
+      <span class="brand-name">Demande de date pastel</span>
+    </header>
+
+    <!-- Stage 1 : question -->
+    <section id="s1" class="stage active" aria-label="Question principale">
+      <h1 class="question-heading">Est-ce que tu veux sortir avec moi&nbsp;?</h1>
+      <p class="question-sub">Le bouton non n'aime pas trop être approché…</p>
+      <div class="buttons-zone" id="buttonsZone">
+        <button id="yesBtn" class="choice-btn" type="button">Oui 💖</button>
+        <button id="noBtn" class="choice-btn" type="button" aria-label="Non">Non 🙈</button>
+      </div>
+    </section>
+
+    <!-- Stage 2 : date + heure -->
+    <section id="s2" class="stage" aria-label="Choix de la date et de l'heure">
+      <h2 class="stage-title">Choisissons une date 🗓️</h2>
+      <p class="stage-sub">Quand est-ce qu'on se retrouve ?</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="dateInput">Date</label>
+          <input id="dateInput" type="date" required>
+        </div>
+        <div class="field">
+          <label for="timeInput">Heure</label>
+          <input id="timeInput" type="time" required>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="backBtn1" type="button">← Retour</button>
+        <button class="btn btn-primary" id="toActivitiesBtn" type="button">Voir les activités ✨</button>
+      </div>
+    </section>
+
+    <!-- Stage 3 : activités -->
+    <section id="s3" class="stage" aria-label="Choix de l'activité">
+      <h2 class="stage-title">Quelle activité vous tente ?</h2>
+      <p class="stage-sub">Choisis-en une parmi ces 5 propositions.</p>
+      <div class="activity-list" id="activityList"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="backBtn2" type="button">← Retour</button>
+        <button class="btn btn-ghost" id="regenBtn" type="button">🔀 Regénérer</button>
+        <button class="btn btn-primary" id="confirmBtn" type="button">C'est décidé 💗</button>
+      </div>
+    </section>
+
+    <!-- Stage 4 : résultat + Instagram -->
+    <section id="s4" class="stage" aria-label="Résultat final">
+      <div class="result-card">
+        <div class="big-emoji">🎉</div>
+        <h2 class="stage-title">C'est officiel !</h2>
+        <div class="result-box" id="resultBox"></div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="backBtn3" type="button">← Modifier</button>
+          <button class="btn btn-primary" id="instagramBtn" type="button">📲 Envoyer sur Instagram</button>
+        </div>
+        <p style="color: var(--color-text-faint); font-size: var(--text-xs); text-align:center;">Le texte est copié dans le presse-papier, puis Instagram s'ouvre.</p>
+      </div>
+    </section>
+
+    <footer>fait avec ❤ en blanc et rose pastel</footer>
+  </main>
+
+  <script>
+    const activityPool = [
+      { title: 'Pique-nique chic', desc: 'Un plaid, quelques douceurs et un coin tranquille.', emoji: '🧺' },
+      { title: 'Cinéma cocooning', desc: 'Une séance + une petite balade après.', emoji: '🎬' },
+      { title: 'Café + dessert', desc: 'Un moment simple avec une pâtisserie à partager.', emoji: '☕' },
+      { title: 'Bowling fun', desc: 'Compétition légère et beaucoup de rires.', emoji: '🎳' },
+      { title: 'Balade au coucher du soleil', desc: 'Le plan romantique et calme par excellence.', emoji: '🌇' },
+      { title: 'Mini resto romantique', desc: 'Une table mignonne dans une ambiance douce.', emoji: '🍽️' },
+      { title: 'Musée ou expo', desc: 'Un date posé avec des choses à découvrir ensemble.', emoji: '🖼️' },
+      { title: 'Soirée jeux', desc: 'Un date ludique avec boissons et défis mignons.', emoji: '🎲' },
+      { title: 'Patinoire', desc: 'Un peu d\'action et plein de souvenirs.', emoji: '⛸️' },
+      { title: 'Crêpes maison', desc: 'Une activité gourmande et chaleureuse.', emoji: '🥞' },
+      { title: 'Session photo duo', desc: 'Créer quelques beaux souvenirs du moment.', emoji: '📸' },
+      { title: 'Sortie surprise en ville', desc: 'Se laisser porter et improviser ensemble.', emoji: '✨' }
+    ];
+
+    let currentActivities = [];
+    let selectedActivity = null;
+
+    function show(id) {
+      document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function pickRandom(n = 5) {
+      return [...activityPool].sort(() => Math.random() - 0.5).slice(0, n);
+    }
+
+    function renderActivities() {
+      selectedActivity = null;
+      currentActivities = pickRandom();
+      const list = document.getElementById('activityList');
+      list.innerHTML = '';
+      currentActivities.forEach((act, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'activity-item';
+        btn.type = 'button';
+        btn.setAttribute('aria-pressed', 'false');
+        btn.dataset.index = i;
+        btn.innerHTML = `
+          <span class="activity-emoji" aria-hidden="true">${act.emoji}</span>
+          <span class="activity-info">
+            <strong>${act.title}</strong>
+            <span>${act.desc}</span>
+          </span>
+          <span class="check-circle" aria-hidden="true">✓</span>
+        `;
+        btn.addEventListener('click', () => selectActivity(i));
+        list.appendChild(btn);
+      });
+    }
+
+    function selectActivity(index) {
+      selectedActivity = currentActivities[index];
+      document.querySelectorAll('.activity-item').forEach((el, i) => {
+        el.classList.toggle('selected', i === index);
+        el.setAttribute('aria-pressed', i === index ? 'true' : 'false');
+      });
+    }
+
+    function formatDateTime() {
+      const d = document.getElementById('dateInput').value;
+      const t = document.getElementById('timeInput').value;
+      if (!d || !t) return '';
+      const date = new Date(`${d}T${t}`);
+      const fDate = new Intl.DateTimeFormat('fr-BE', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+      }).format(date);
+      return `${fDate} à ${t}`;
+    }
+
+    // Stage 1 → no button escape
+    const noBtn = document.getElementById('noBtn');
+    const zone = document.getElementById('buttonsZone');
+
+    function moveNo() {
+      const btnW = noBtn.offsetWidth, btnH = noBtn.offsetHeight;
+      const maxX = zone.offsetWidth - btnW;
+      const maxY = zone.offsetHeight - btnH;
+      const x = Math.random() * maxX + btnW / 2;
+      const y = Math.random() * maxY + btnH / 2;
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+    }
+
+    zone.addEventListener('mousemove', e => {
+      const r = noBtn.getBoundingClientRect();
+      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+      if (dist < 100) moveNo();
+    });
+    noBtn.addEventListener('mouseenter', moveNo);
+    noBtn.addEventListener('touchstart', moveNo, { passive: true });
+    noBtn.addEventListener('click', moveNo);
+
+    document.getElementById('yesBtn').addEventListener('click', () => show('s2'));
+
+    // Stage 2
+    const dateInput = document.getElementById('dateInput');
+    const timeInput = document.getElementById('timeInput');
+    const today = new Date();
+    dateInput.min = today.toISOString().split('T')[0];
+
+    document.getElementById('backBtn1').addEventListener('click', () => show('s1'));
+    document.getElementById('toActivitiesBtn').addEventListener('click', () => {
+      if (!dateInput.value || !timeInput.value) {
+        alert('Choisis d\'abord une date et une heure 💗');
+        return;
+      }
+      renderActivities();
+      show('s3');
+    });
+
+    // Stage 3
+    document.getElementById('backBtn2').addEventListener('click', () => show('s2'));
+    document.getElementById('regenBtn').addEventListener('click', renderActivities);
+    document.getElementById('confirmBtn').addEventListener('click', () => {
+      if (!selectedActivity) {
+        alert('Choisis une activité d\'abord 💖');
+        return;
+      }
+      const when = formatDateTime();
+      const box = document.getElementById('resultBox');
+      box.innerHTML = `
+        <div>
+          <span class="result-label">Date et heure</span>
+          <span class="result-value">${when}</span>
+        </div>
+        <div>
+          <span class="result-label">Activité choisie</span>
+          <span class="result-value">${selectedActivity.emoji} ${selectedActivity.title}</span>
+        </div>
+        <div style="color:var(--color-text-muted); font-size: var(--text-sm);">${selectedActivity.desc}</div>
+      `;
+      box.dataset.message = `💖 C'est officiel ! Notre date est fixée le ${when}. On a choisi : ${selectedActivity.emoji} ${selectedActivity.title} — ${selectedActivity.desc} Hâte d'y être !`;
+      show('s4');
+    });
+
+    // Stage 4
+    document.getElementById('backBtn3').addEventListener('click', () => show('s3'));
+    document.getElementById('instagramBtn').addEventListener('click', () => {
+      const msg = document.getElementById('resultBox').dataset.message || '💖 Notre date est fixée !';
+      try {
+        navigator.clipboard.writeText(msg);
+      } catch(e) {
+        const ta = document.createElement('textarea');
+        ta.value = msg;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      const opened = Date.now();
+      window.location.href = 'instagram://camera';
+      setTimeout(() => {
+        if (Date.now() - opened < 1800) {
+          window.open('https://www.instagram.com/direct/inbox/', '_blank', 'noopener,noreferrer');
+        }
+      }, 900);
+    });
+  </script>
+</body>
+</html>
